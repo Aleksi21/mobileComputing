@@ -2,6 +2,7 @@ package com.example.composetutorial
 
 import android.annotation.SuppressLint
 import android.content.res.Configuration
+import android.net.Uri
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.Image
@@ -37,21 +38,21 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
+import coil.compose.AsyncImage
 import com.example.composetutorial.ui.theme.ComposeTutorialTheme
 
 data class Message(val author: String, val body: String)
 
 @Composable
 fun MessageCard(msg: Message) {
+
+    lateinit var viewModel: ContactViewModel
+
     Row(modifier = Modifier.padding(all = 8.dp)){
-        Image(
-            painter = painterResource(R.drawable.cube),
-            contentDescription = null,
-            modifier = Modifier
-                .size(40.dp)
-                .clip(CircleShape)
-                .border(1.5.dp, MaterialTheme.colorScheme.primary),
-        )
+
+        val picture = "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSDqdRJ7FONAOjEjI6n4xpB8Kjv2HK1mhMLSg&usqp=CAU"
+
+        ProfilePicture(picture)
 
         Spacer(modifier = Modifier.width(8.dp))
 
@@ -90,6 +91,18 @@ fun MessageCard(msg: Message) {
     }
 }
 
+@Composable
+private fun ProfilePicture(path: String){
+    AsyncImage(
+        model = path,//painter = painterResource(R.drawable.cube),
+        contentDescription = null,
+        modifier = Modifier
+            .size(40.dp)
+            .clip(CircleShape)
+            .border(1.5.dp, MaterialTheme.colorScheme.primary),
+    )
+}
+
 @Preview(name = "Light Mode")
 @Preview(
     uiMode = Configuration.UI_MODE_NIGHT_YES,
@@ -111,7 +124,6 @@ fun PreviewMessageCard() {
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun Conversation(
-    messages: List<Message>,
     navController: NavController
 ){
     Scaffold(
@@ -141,7 +153,7 @@ fun Conversation(
     }
     LazyColumn(modifier = Modifier.padding(top = 70.dp)){
 
-        items(messages) { message ->
+        items(SampleData.conversationSample) { message ->
             MessageCard(message)
         }
     }
@@ -150,7 +162,7 @@ fun Conversation(
 @Composable
 fun PreviewConversation() {
     ComposeTutorialTheme {
-        Conversation(SampleData.conversationSample, navController = rememberNavController())
+        Conversation(navController = rememberNavController())
     }
 }
 object SampleData {

@@ -14,7 +14,7 @@ fun Navigation(navController: NavHostController) {
         composable(
             route = Screen.MainScreen.route
         ) {
-            Conversation(SampleData.conversationSample, navController)
+            Conversation(navController)
         }
         composable(
             route = Screen.DetailScreen.route
