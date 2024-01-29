@@ -2,7 +2,6 @@ package com.example.composetutorial
 
 import android.annotation.SuppressLint
 import android.content.res.Configuration
-import android.net.Uri
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.Image
@@ -27,32 +26,31 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
-import androidx.navigation.compose.rememberNavController
 import coil.compose.AsyncImage
 import com.example.composetutorial.ui.theme.ComposeTutorialTheme
 
 data class Message(val author: String, val body: String)
 
 @Composable
-fun MessageCard(msg: Message) {
-
-    lateinit var viewModel: ContactViewModel
+fun MessageCard(msg: Message, contactViewModel: ContactViewModel) {
 
     Row(modifier = Modifier.padding(all = 8.dp)){
 
         val picture = "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSDqdRJ7FONAOjEjI6n4xpB8Kjv2HK1mhMLSg&usqp=CAU"
 
-        ProfilePicture(picture)
 
         Spacer(modifier = Modifier.width(8.dp))
 
@@ -113,9 +111,10 @@ private fun ProfilePicture(path: String){
 fun PreviewMessageCard() {
     ComposeTutorialTheme {
         Surface{
-            MessageCard(
-                msg = Message("Lexi", "Hey take a look at Jetpack Compose, it's great!")
-            )
+            //MessageCard(
+                //msg = Message("Lexi", "Hey take a look at Jetpack Compose, it's great!"),
+                //contactViewModel = contactViewModel
+            //)
         }
     }
 }
@@ -124,7 +123,8 @@ fun PreviewMessageCard() {
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun Conversation(
-    navController: NavController
+    navController: NavController,
+    contactViewModel: ContactViewModel = viewModel()
 ){
     Scaffold(
         topBar = {
@@ -133,8 +133,12 @@ fun Conversation(
                     containerColor = MaterialTheme.colorScheme.primaryContainer,
                     titleContentColor = MaterialTheme.colorScheme.primary,
                 ),
-                title = {
-                    Text("Welcome!")
+                title = {//TODO
+                    //val contactName = contactViewModel.getName.observe(){ contact ->
+                    //    contact.let { adapter.submitList(it) }
+                    //}
+
+                    //Text(text = "YO: $contactName")
                 },
                 navigationIcon = {
                     IconButton(onClick = {navController.navigate(route = Screen.DetailScreen.route)}) {
@@ -154,7 +158,7 @@ fun Conversation(
     LazyColumn(modifier = Modifier.padding(top = 70.dp)){
 
         items(SampleData.conversationSample) { message ->
-            MessageCard(message)
+            MessageCard(message, contactViewModel)
         }
     }
 }
@@ -162,7 +166,7 @@ fun Conversation(
 @Composable
 fun PreviewConversation() {
     ComposeTutorialTheme {
-        Conversation(navController = rememberNavController())
+        //Conversation(navController = rememberNavController(), contactViewModel = contactViewModel)
     }
 }
 object SampleData {

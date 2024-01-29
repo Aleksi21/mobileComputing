@@ -6,7 +6,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 
 @Composable
-fun Navigation(navController: NavHostController) {
+fun Navigation(navController: NavHostController, contactViewModel: ContactViewModel) {
     NavHost(
         navController = navController,
         startDestination = Screen.MainScreen.route
@@ -14,12 +14,12 @@ fun Navigation(navController: NavHostController) {
         composable(
             route = Screen.MainScreen.route
         ) {
-            Conversation(navController)
+            Conversation(navController, contactViewModel)
         }
         composable(
             route = Screen.DetailScreen.route
         ){
-            DetailScreen(navController)
+            DetailScreen(navController, contactViewModel)
         }
     }
 }

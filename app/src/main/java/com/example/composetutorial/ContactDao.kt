@@ -4,6 +4,7 @@ import androidx.room.Dao
 import androidx.room.Delete
 import androidx.room.Query
 import androidx.room.Upsert
+import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface ContactDao {
@@ -14,9 +15,9 @@ interface ContactDao {
     @Delete
     suspend fun deleteContact(contact: Contact)
 
-    @Query("SELECT presentedName FROM contact_table WHERE id = :contactId")
-    suspend fun getName(contactId: Long): String?
+    @Query("SELECT * FROM contact_table WHERE id == :contactId")
+    fun getName(contactId: Long): Flow<List<Contact>>
 
-    @Query("SELECT profilePicture FROM contact_table WHERE id = :contactId")
-    suspend fun getProfilePicture(contactId: Long): String?
+    @Query("SELECT * FROM contact_table WHERE id == :contactId")
+    fun getProfilePicture(contactId: Long): Flow<List<Contact>>
 }

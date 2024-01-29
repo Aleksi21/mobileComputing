@@ -34,13 +34,10 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
-import androidx.navigation.compose.rememberNavController
 import coil.compose.AsyncImage
 
 @Composable
-fun DetailScreen(navController: NavController) {
-
-    lateinit var viewModel: ContactViewModel
+fun DetailScreen(navController: NavController, contactViewModel: ContactViewModel) {
 
     var selectedImageUri by remember {
         mutableStateOf<Uri?>(null)
@@ -49,14 +46,14 @@ fun DetailScreen(navController: NavController) {
         mutableStateOf("")
     }
     val pictureAsString = selectedImageUri.toString()
-    val contact = Contact(0, name, pictureAsString)
+    val newContact = Contact(0, name, pictureAsString)
 
     val photoPickerLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.PickVisualMedia(),
         onResult = { uri ->
             //TODO
             selectedImageUri = uri
-            //viewModel.upsertContact(contact)
+            contactViewModel.upsertContact(newContact)
         }
     )
 
@@ -77,7 +74,7 @@ fun DetailScreen(navController: NavController) {
                 Spacer(modifier = Modifier.width(16.dp))
                 Button(onClick = {
                     //TODO
-                    //viewModel.upsertContact(contact)
+                    contactViewModel.upsertContact(newContact)
                 }) {
                     Text(text = "Add")
                 }
@@ -132,5 +129,5 @@ private fun ProfilePicture(path: String){
 @Composable
 @Preview(showBackground = true)
 fun DetailScreenPreview(){
-    DetailScreen(navController = rememberNavController())
+    //DetailScreen(navController = rememberNavController(), contactViewModel = contactViewModel)
 }

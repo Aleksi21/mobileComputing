@@ -69,6 +69,10 @@ dependencies {
     //Coil
     implementation("io.coil-kt:coil-compose:2.5.0")
 
+    //LiveData
+    val lifecycle_version = "2.2.0"
+    implementation("androidx.lifecycle:lifecycle-livedata-ktx:$lifecycle_version")
+
     //Room
     val room_version = "2.6.1"
     implementation("androidx.room:room-runtime:$room_version")
