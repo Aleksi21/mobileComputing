@@ -4,10 +4,8 @@ import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.PrimaryKey
 
-@Entity(tableName = "contact_table")
+@Entity
 data class Contact(
-    @PrimaryKey(autoGenerate = false)
-    @ColumnInfo val id: Int,
-    @ColumnInfo val presentedName: String,
-    @ColumnInfo val profilePicture: String
+    @PrimaryKey(autoGenerate = true) val id: Int = 0,
+    @ColumnInfo val presentedName: String
 )

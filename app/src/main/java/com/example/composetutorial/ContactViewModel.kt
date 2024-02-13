@@ -13,8 +13,8 @@ import java.lang.IllegalArgumentException
 
 class ContactViewModel(private val repository: ContactRepository): ViewModel() {
 
-    val getName : LiveData<List<Contact>> = repository.getName.asLiveData()
-    val getProfilePicture : LiveData<List<Contact>> = repository.getProfilePicture.asLiveData()
+    //val getName : LiveData<List<Contact>> = repository.getName.asLiveData()
+    //val getProfilePicture : LiveData<List<Contact>> = repository.getProfilePicture.asLiveData()
 
 
     fun upsertContact(contact: Contact){

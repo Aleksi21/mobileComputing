@@ -35,27 +35,49 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import coil.compose.AsyncImage
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.ui.platform.LocalContext
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import java.io.File
+import java.io.FileOutputStream
 
 @Composable
-fun DetailScreen(navController: NavController, contactViewModel: ContactViewModel) {
+fun DetailScreen(navController: NavController, dataBase: ContactDataBase) {
+    val context = LocalContext.current
+    var selectedImageUri by remember { mutableStateOf<Uri?>(null) }
+    val file = File(context.filesDir, "picked_image.jpg")
 
-    var selectedImageUri by remember {
-        mutableStateOf<Uri?>(null)
-    }
-    var name by remember {
-        mutableStateOf("")
-    }
-    val pictureAsString = selectedImageUri.toString()
-    val newContact = Contact(0, name, pictureAsString)
+    var name by remember { mutableStateOf("Lexi") }
+    var contact by remember { mutableStateOf<Contact?>(null) }
 
     val photoPickerLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.PickVisualMedia(),
         onResult = { uri ->
-            //TODO
             selectedImageUri = uri
-            contactViewModel.upsertContact(newContact)
+
+            selectedImageUri?.let { uris ->
+                val inputStream = context.contentResolver.openInputStream(uris)
+                inputStream?.use { input ->
+                    val outputStream = FileOutputStream(file)
+                    input.copyTo(outputStream)
+                    outputStream.close()
+                }
+            }
         }
     )
+    LaunchedEffect(key1 = dataBase){
+        contact = withContext(Dispatchers.IO) {
+            dataBase.contactDao().getContact()
+        }
+    }
+    LaunchedEffect(key1 = contact){
+        if (contact != null) {
+            name = contact?.presentedName ?: ""
+        }
+    }
 
     LazyColumn(
         modifier = Modifier,
@@ -73,8 +95,17 @@ fun DetailScreen(navController: NavController, contactViewModel: ContactViewMode
                 )
                 Spacer(modifier = Modifier.width(16.dp))
                 Button(onClick = {
-                    //TODO
-                    contactViewModel.upsertContact(newContact)
+                    CoroutineScope(Dispatchers.IO).launch {
+                        contact = dataBase.contactDao().getContact()
+                        if (contact != null) {
+                            dataBase.contactDao().deleteContact(contact!!)
+                        }
+                        val newContact = Contact(
+                            presentedName = name,
+                        )
+                        contact = newContact
+                        contact?.let { dataBase.contactDao().upsertContact(it) }
+                    }
                 }) {
                     Text(text = "Add")
                 }
@@ -84,8 +115,14 @@ fun DetailScreen(navController: NavController, contactViewModel: ContactViewMode
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.Absolute.Left
             ){
-
-                ProfilePicture(selectedImageUri.toString())
+                AsyncImage(
+                    model = selectedImageUri?.toString() ?: Uri.fromFile(file).toString(),//painter = painterResource(R.drawable.cube),
+                    contentDescription = null,
+                    modifier = Modifier
+                        .size(40.dp)
+                        .clip(CircleShape)
+                        .border(1.5.dp, MaterialTheme.colorScheme.primary),
+                )
 
                 Spacer(modifier = Modifier.width(8.dp))
 
@@ -114,18 +151,6 @@ fun DetailScreen(navController: NavController, contactViewModel: ContactViewMode
         )
     }
 }
-@Composable
-private fun ProfilePicture(path: String){
-    AsyncImage(
-        model = path,//painter = painterResource(R.drawable.cube),
-        contentDescription = null,
-        modifier = Modifier
-            .size(40.dp)
-            .clip(CircleShape)
-            .border(1.5.dp, MaterialTheme.colorScheme.primary),
-    )
-}
-
 @Composable
 @Preview(showBackground = true)
 fun DetailScreenPreview(){

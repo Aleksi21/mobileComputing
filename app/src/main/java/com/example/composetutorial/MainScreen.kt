@@ -2,6 +2,7 @@ package com.example.composetutorial
 
 import android.annotation.SuppressLint
 import android.content.res.Configuration
+import android.net.Uri
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.Image
@@ -34,6 +35,7 @@ import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -41,16 +43,33 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import coil.compose.AsyncImage
 import com.example.composetutorial.ui.theme.ComposeTutorialTheme
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
+import java.io.File
 
 data class Message(val author: String, val body: String)
 
 @Composable
-fun MessageCard(msg: Message, contactViewModel: ContactViewModel) {
+fun MessageCard(msg: Message, dataBase: ContactDataBase) {
+    var name by remember { mutableStateOf("Lexi") }
+    var contact by remember { mutableStateOf<Contact?>(null) }
+
+    LaunchedEffect(key1 = dataBase){
+        contact = withContext(Dispatchers.IO) {
+            dataBase.contactDao().getContact()
+        }
+    }
+    LaunchedEffect(key1 = contact){
+        if (contact != null) {
+            name = contact?.presentedName ?: ""
+        }
+    }
 
     Row(modifier = Modifier.padding(all = 8.dp)){
-
-        val picture = "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSDqdRJ7FONAOjEjI6n4xpB8Kjv2HK1mhMLSg&usqp=CAU"
-
+        val context = LocalContext.current
+        //val picture = "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSDqdRJ7FONAOjEjI6n4xpB8Kjv2HK1mhMLSg&usqp=CAU"
+        val file = File(context.filesDir, "picked_image.jpg")
+        ProfilePicture(path = Uri.fromFile(file).toString())
 
         Spacer(modifier = Modifier.width(8.dp))
 
@@ -63,7 +82,7 @@ fun MessageCard(msg: Message, contactViewModel: ContactViewModel) {
 
         Column(modifier = Modifier.clickable { isExpanded = !isExpanded }) {
             Text(
-                text = msg.author,
+                text = name,
                 color = MaterialTheme.colorScheme.secondary,
                 style = MaterialTheme.typography.titleSmall
             )
@@ -124,7 +143,7 @@ fun PreviewMessageCard() {
 @Composable
 fun Conversation(
     navController: NavController,
-    contactViewModel: ContactViewModel = viewModel()
+    dataBase: ContactDataBase
 ){
     Scaffold(
         topBar = {
@@ -133,12 +152,8 @@ fun Conversation(
                     containerColor = MaterialTheme.colorScheme.primaryContainer,
                     titleContentColor = MaterialTheme.colorScheme.primary,
                 ),
-                title = {//TODO
-                    //val contactName = contactViewModel.getName.observe(){ contact ->
-                    //    contact.let { adapter.submitList(it) }
-                    //}
-
-                    //Text(text = "YO: $contactName")
+                title = {
+                    Text(text = "Welcome")
                 },
                 navigationIcon = {
                     IconButton(onClick = {navController.navigate(route = Screen.DetailScreen.route)}) {
@@ -158,7 +173,7 @@ fun Conversation(
     LazyColumn(modifier = Modifier.padding(top = 70.dp)){
 
         items(SampleData.conversationSample) { message ->
-            MessageCard(message, contactViewModel)
+            MessageCard(message, dataBase)
         }
     }
 }

@@ -7,22 +7,25 @@ import androidx.activity.viewModels
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
+import androidx.room.Room
 import com.example.composetutorial.ui.theme.ComposeTutorialTheme
 
 
 class MainActivity : ComponentActivity() {
 
     private lateinit var navController: NavHostController
-    private val contactViewModel: ContactViewModel by viewModels {
-        ContactViewModelFactory((application as ContactApplication).repository)
-    }
+    private lateinit var db: ContactDataBase
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        db = Room.databaseBuilder(
+            applicationContext,
+            ContactDataBase::class.java, "database-name"
+        ).build()
         setContent {
             ComposeTutorialTheme {
                 navController = rememberNavController()
-                Navigation(navController = navController, contactViewModel = contactViewModel)
+                Navigation(navController = navController, dataBase = db)
                 //Conversation(SampleData.conversationSample)
                 /*
                 Surface(modifier = Modifier.fillMaxSize()) {

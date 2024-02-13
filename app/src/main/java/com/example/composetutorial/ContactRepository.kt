@@ -4,11 +4,11 @@ import kotlinx.coroutines.flow.Flow
 
 class ContactRepository(private val contactDao: ContactDao) {
 
-    val getName: Flow<List<Contact>> = contactDao.getName(0)
-    val getProfilePicture: Flow<List<Contact>> = contactDao.getProfilePicture(0)
+    //val getName: Flow<List<Contact>> = contactDao.getName(0)
+    //val getProfilePicture: Flow<List<Contact>> = contactDao.getProfilePicture(0)
 
     suspend fun upsertContact(contact: Contact){
-        contactDao.upsertContact(contact)
+        //contactDao.insertContact(contact)
     }
     suspend fun deleteContact(contact: Contact){
         contactDao.deleteContact(contact)
