@@ -1,5 +1,6 @@
 package com.example.composetutorial
 
+import android.content.pm.PackageManager
 import android.net.Uri
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.PickVisualMediaRequest
@@ -42,6 +43,8 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.io.File
+import android.Manifest
+import android.content.Intent
 import java.io.FileOutputStream
 
 @Composable
@@ -132,6 +135,22 @@ fun DetailScreen(navController: NavController, dataBase: ContactDataBase) {
                     )
                 }){
                     Text(text = "Pick a profile picture")
+                }
+            }
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.Absolute.Left
+            ){
+                Button(onClick = {
+                    val intent = Intent().apply {
+                        action = "android.settings.APP_NOTIFICATION_SETTINGS"
+                        putExtra("app_package", context.packageName)
+                        putExtra("app_uid", context.applicationInfo.uid)
+                        putExtra("android.provider.extra.APP_PACKAGE", context.packageName)
+                    }
+                    context.startActivity(intent)
+                }){
+                    Text(text = "Enable notifications")
                 }
             }
         }

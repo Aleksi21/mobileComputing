@@ -1,10 +1,13 @@
 package com.example.composetutorial
 
+import android.app.NotificationChannel
+import android.app.NotificationManager
+import android.content.Context
+import android.hardware.SensorManager
+import android.os.Build
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.activity.viewModels
-import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import androidx.room.Room
@@ -15,44 +18,43 @@ class MainActivity : ComponentActivity() {
 
     private lateinit var navController: NavHostController
     private lateinit var db: ContactDataBase
+    private lateinit var sensorActivity: SensorActivity
+    private lateinit var sensorManager: SensorManager
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            val channel = NotificationChannel(
+                "channelId",
+                "Channel",
+                NotificationManager.IMPORTANCE_HIGH
+            ).apply {
+            }
+            // Register the channel with the system.
+            val notificationManager: NotificationManager =
+                getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+            notificationManager.createNotificationChannel(channel)
+        }
+
         db = Room.databaseBuilder(
             applicationContext,
             ContactDataBase::class.java, "database-name"
         ).build()
+
+        sensorManager = getSystemService(Context.SENSOR_SERVICE) as SensorManager
+        sensorActivity = SensorActivity(this, sensorManager)
+
         setContent {
             ComposeTutorialTheme {
                 navController = rememberNavController()
                 Navigation(navController = navController, dataBase = db)
-                //Conversation(SampleData.conversationSample)
-                /*
-                Surface(modifier = Modifier.fillMaxSize()) {
-                    MessageCard(Message("Android", "Jetpack Compose"))
-                }
-                 */
             }
         }
     }
-}
 
-
-/*
-@Composable
-fun Greeting(name: String, modifier: Modifier = Modifier) {
-    Text(
-            text = "Hello $name!",
-            modifier = modifier
-    )
-}
-
-@Preview(showBackground = true)
-@Composable
-fun GreetingPreview() {
-    ComposeTutorialTheme {
-        Greeting("Android")
+    override fun onDestroy() {
+        super.onDestroy()
+        sensorActivity.unregister()
     }
 }
-
- */
